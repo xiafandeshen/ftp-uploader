@@ -1,10 +1,9 @@
 name: Publish to npm
 
 on:
-  release:
-    types: [created]  # 当创建 GitHub Release 时触发
-  # 或者你也可以选择手动触发
-  workflow_dispatch:
+  push:
+    branches:
+      - master  # 当 master 分支有代码推送时触发
 
 jobs:
   publish:
@@ -17,20 +16,61 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史，用于版本判断
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          registry-url: 'https://registry.npmjs.org'  # npm 官方 registry
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: npm ci  # 比 npm install 更严格，适合 CI
+        run: npm ci
 
       - name: Run tests
-        run: npm test  # 发布前确保测试通过
+        run: npm test
+
+      - name: Check version change
+        id: check
+        run: |
+          # 获取上次提交和当前提交的版本号
+          git fetch --tags
+          PREV_VERSION=$(git show HEAD~1:package.json 2>/dev/null | grep '"version"' | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d ' ' || echo "none")
+          CURR_VERSION=$(grep '"version"' package.json | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d ' ')
+          
+          echo "Previous version: $PREV_VERSION"
+          echo "Current version: $CURR_VERSION"
+          
+          if [ "$PREV_VERSION" != "$CURR_VERSION" ] && [ "$CURR_VERSION" != "none" ]; then
+            echo "Version changed from $PREV_VERSION to $CURR_VERSION"
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "new_version=$CURR_VERSION" >> $GITHUB_OUTPUT
+          else
+            echo "Version not changed, skipping publish"
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Publish to npm
+        if: steps.check.outputs.should_publish == 'true'
         run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}  # 使用刚才配置的 token
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create Git Tag
+        if: steps.check.outputs.should_publish == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a v${{ steps.check.outputs.new_version }} -m "Release v${{ steps.check.outputs.new_version }}"
+          git push origin v${{ steps.check.outputs.new_version }}
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.should_publish == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.check.outputs.new_version }}
+          name: Release v${{ steps.check.outputs.new_version }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
