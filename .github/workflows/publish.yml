@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     permissions:
-      contents: read
+      contents: write  # 允许写入代码和创建 tag
       id-token: write  # 用于 OIDC 认证（可选）
 
     steps:
