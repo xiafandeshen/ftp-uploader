@@ -18,13 +18,13 @@
 ## 安装
 
 ```bash
-npm install --save-dev ftp-uploader-tool
+npm install --save-dev simple-ftp-uploader
 ```
 
 ## 基本使用
 
 ```javascript
-const FtpUploader = require("ftp-uploader-tool")
+const FtpUploader = require("simple-ftp-uploader")
 const path = require("path")
 
 const config = {

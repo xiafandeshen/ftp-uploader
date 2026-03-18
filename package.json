@@ -1,5 +1,5 @@
 {
-  "name": "ftp-uploader",
+  "name": "simple-ftp-uploader",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -26,5 +26,18 @@
     "@types/jest": "^30.0.0",
     "jest": "^30.3.0",
     "mock-fs": "^5.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiafandeshen/ftp-uploader.git"
+  },
+  "files": [
+    "lib/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
