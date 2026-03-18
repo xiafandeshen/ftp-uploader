@@ -26,12 +26,15 @@ npm install --save-dev simple-ftp-uploader
 ```javascript
 const FtpUploader = require("simple-ftp-uploader")
 const path = require("path")
+const prompt = require("prompt-sync")()
+
+const password = prompt.hide("输入密码:")
 
 const config = {
   host: "your-ftp-server.com",
   port: 21,
   username: "your-username",
-  password: "your-password",
+  password: password,
   ftps: false,
   localDir: path.resolve(__dirname, "dist"),
   remoteDir: "/public_html/",
