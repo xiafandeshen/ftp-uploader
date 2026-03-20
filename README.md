@@ -1,6 +1,6 @@
 # FTP Uploader Tool
 
-[![npm version](https://img.shields.io/npm/v/ftp-uploader-tool.svg)](https://www.npmjs.com/package/ftp-uploader-tool)
+[![npm version](https://img.shields.io/npm/v/simple-ftp-uploader.svg)](https://www.npmjs.com/package/simple-ftp-uploader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 一个简单但强大的 FTP 上传工具，支持 include/exclude 模式匹配。特别适合用于自动化部署静态网站。
